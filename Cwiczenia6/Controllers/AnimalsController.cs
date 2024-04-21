@@ -4,8 +4,8 @@ using Cwiczenia6.Services;
 
 namespace Cwiczenia6.Controllers;
 
-[ApiController]
 [Route("api/[controller]")]
+[ApiController]
 public class AnimalsController : ControllerBase
 {
     private IAnimalsService _animalsService;

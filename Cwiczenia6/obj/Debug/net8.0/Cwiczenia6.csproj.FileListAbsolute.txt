@@ -37,3 +37,4 @@
 /Users/stanislawstepka/Desktop/DYSK M/UCZELNIA/4 SEM/APBD/CW6/Cwiczenia6/Cwiczenia6/obj/Debug/net8.0/Cwiczenia6.pdb
 /Users/stanislawstepka/Desktop/DYSK M/UCZELNIA/4 SEM/APBD/CW6/Cwiczenia6/Cwiczenia6/obj/Debug/net8.0/Cwiczenia6.genruntimeconfig.cache
 /Users/stanislawstepka/Desktop/DYSK M/UCZELNIA/4 SEM/APBD/CW6/Cwiczenia6/Cwiczenia6/obj/Debug/net8.0/ref/Cwiczenia6.dll
+/Users/stanislawstepka/Desktop/DYSK M/UCZELNIA/4 SEM/APBD/CW6/Cwiczenia6/Cwiczenia6/obj/Debug/net8.0/Cwiczenia6.sourcelink.json

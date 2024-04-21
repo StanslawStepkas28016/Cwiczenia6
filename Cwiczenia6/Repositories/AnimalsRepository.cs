@@ -6,50 +6,47 @@ namespace Cwiczenia6.Repositories;
 
 public class AnimalsRepository : IAnimalsRepository
 {
-    private const string ConnectionString = "Server=localhost,1433;Database=master;User Id=sa;Password=bazaTestowa1234";
+    private readonly string _connectionString;
 
-    public IEnumerable<Animal> GetAnimals(string orderBy = "name")
+    public AnimalsRepository(IConfiguration configuration)
     {
-        // Walidacja, zabezpieczająca przed SQL Injection.
-        HashSet<string> validationSet = ["name", "description", "category", "area"];
-        if (!validationSet.Contains(orderBy))
+        _connectionString = configuration.GetConnectionString("DefaultConnection");
+
+        if (string.IsNullOrEmpty(_connectionString))
         {
-            return new List<Animal>();
+            throw new InvalidOperationException("Failed to load the database connection string.");
         }
+    }
 
-        // Zapytanie, bez "ASC", bo jest ono natywnie przy "ORDER BY".
-        string query = $"SELECT * FROM Animal ORDER BY {orderBy}";
-
-        // Połączenie z bazą i czytanie do listy.
-        List<Animal> animals = new List<Animal>();
-
-        using (SqlConnection connection = new SqlConnection(ConnectionString))
+    public IEnumerable<Animal> GetAnimals(string query)
+    {
+        using var con = new SqlConnection(_connectionString);
+        con.Open();
+        
+        using var cmd = new SqlCommand($"SELECT IdAnimal, Name, Description, Category, Area FROM Animal ORDER BY {query} ASC", con);
+        
+        var reader = cmd.ExecuteReader();
+        var animals = new List<Animal>();
+        while (reader.Read())
         {
-            SqlCommand command = new SqlCommand(query, connection);
-            connection.Open();
-
-            using (SqlDataReader dr = command.ExecuteReader())
+            var data = new Animal
             {
-                while (dr.Read())
-                {
-                    animals.Add(
-                        new Animal(
-                            (int)dr["IdAnimal"],
-                            dr["name"].ToString(),
-                            dr["description"].ToString(),
-                            dr["category"].ToString(),
-                            dr["area"].ToString())
-                    );
-                }
-            }
+                IdAnimal = (int)reader["IdAnimal"],
+                Name = reader["Name"].ToString(),
+                Description = reader["Description"].ToString(),
+                Category = reader["Category"].ToString(),
+                Area = reader["Area"].ToString()
+            };
+            animals.Add(data);
         }
+        
 
         return animals;
     }
 
     public int AddAnimal([FromBody] Animal animal)
     {
-        using (SqlConnection connection = new SqlConnection(ConnectionString))
+        using (SqlConnection connection = new SqlConnection(_connectionString))
         {
             string query =
                 $"INSERT INTO Animal (Name, Description, Category, Area) " +
@@ -78,13 +75,13 @@ public class AnimalsRepository : IAnimalsRepository
                        $"Area = '{newAnimal.Category}' " +
                        $"WHERE IdAnimal = {id}";
 
-        using (SqlConnection connection = new SqlConnection(ConnectionString))
+        using (SqlConnection connection = new SqlConnection(_connectionString))
         {
             SqlCommand command = new SqlCommand(query, connection);
             connection.Open();
-            
+
             int result = command.ExecuteNonQuery();
-            
+
             return result;
         }
     }
@@ -93,13 +90,13 @@ public class AnimalsRepository : IAnimalsRepository
     {
         string query = $"DELETE FROM Animal WHERE IdAnimal = {id}";
 
-        using (SqlConnection connection = new SqlConnection(ConnectionString))
+        using (SqlConnection connection = new SqlConnection(_connectionString))
         {
             SqlCommand command = new SqlCommand(query, connection);
             connection.Open();
-            
+
             int result = command.ExecuteNonQuery();
-            
+
             return result;
         }
     }
