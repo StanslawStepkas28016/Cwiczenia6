@@ -64,6 +64,6 @@ public class AnimalsController : ControllerBase
             return StatusCode(StatusCodes.Status404NotFound);
         }
 
-        return NoContent();
+        return StatusCode(StatusCodes.Status202Accepted);
     }
 }

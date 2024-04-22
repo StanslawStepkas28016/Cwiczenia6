@@ -18,15 +18,26 @@ public class AnimalsRepository : IAnimalsRepository
         }
     }
 
-    public IEnumerable<Animal> GetAnimals(string query)
+    public IEnumerable<Animal> GetAnimals(string orderBy = "name")
     {
+        // Walidacja, zabezpieczająca przed SQL Injection.
+        HashSet<string> validationSet = ["name", "description", "category", "area"];
+        if (!validationSet.Contains(orderBy))
+        {
+            return new List<Animal>();
+        }
+
+        // Zapytanie, bez "ASC", bo jest ono natywnie przy "ORDER BY".
+        string query = $"SELECT * FROM Animal ORDER BY {orderBy}";
+
+        // Połączenie z bazą i czytanie do listy.
         using var con = new SqlConnection(_connectionString);
+        using var cmd = new SqlCommand(query, con);
+        // cmd.Parameters.AddWithValue() - do zapobiegania
         con.Open();
-        
-        using var cmd = new SqlCommand($"SELECT IdAnimal, Name, Description, Category, Area FROM Animal ORDER BY {query} ASC", con);
-        
+
         var reader = cmd.ExecuteReader();
-        var animals = new List<Animal>();
+        List<Animal> animals = new List<Animal>();
         while (reader.Read())
         {
             var data = new Animal
@@ -39,7 +50,7 @@ public class AnimalsRepository : IAnimalsRepository
             };
             animals.Add(data);
         }
-        
+
 
         return animals;
     }
@@ -69,7 +80,7 @@ public class AnimalsRepository : IAnimalsRepository
 
     public int UpdateAnimal(int id, Animal newAnimal)
     {
-        string query = $"UPDATE Animals SET Name = '{newAnimal.Name}', " +
+        string query = $"UPDATE Animal SET Name = '{newAnimal.Name}', " +
                        $"Description = '{newAnimal.Description}'," +
                        $"Category = '{newAnimal.Category}'," +
                        $"Area = '{newAnimal.Category}' " +
